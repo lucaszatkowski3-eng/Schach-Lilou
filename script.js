@@ -34,17 +34,52 @@ function moveName(m,before){const p=m.piece.toUpperCase();if(m.castle)return m.c
 function updateRights(m,p){state.rights=nextRights(state.rights,m,p)}
 function makeMove(m){const before=clone(board),p=board[m.fr][m.fc],cap=board[m.tr][m.tc];history.push({board:clone(board),turn,rights:{...stateRights()},lastMove:lastMove,notation:notation.slice(),state:{coins:state.coins,xp:state.xp,skill:state.skill,wins:state.wins,games:state.games}});
 updateRights(m,p);board=apply(board,m);lastMove={...m};notation.push(moveName(m,before));state.coins+=cap?3:1;state.xp+=cap?3:1;if(inCheck(board,turn==='white'?'black':'white')){state.coins+=5;state.xp+=5;$('coach').textContent='Schach! ✨ Du hast einen starken Moment gefunden.'}save();renderStats();render();return cap}
-function makeHuman(m){if(aiThinking||over)return;makeMove(m);selected=null;if(endFor('black'))return;turn='black';render();aiThinking=true;setTimeout(aiMove,300)}
+function makeHuman(m){
+  if(aiThinking||over)return;
+  const before=clone(board);
+  const captured=before[m.tr][m.tc];
+  makeMove(m);
+  selected=null;
+  const givesCheck=inCheck(board,'black');
+  state.skill=Math.min(399,state.skill+(givesCheck?3:captured?2:1));
+  if(givesCheck) say('Wow Lilou! Du hast Schach gegeben! ✨');
+  else if(captured) say('Super! Du hast eine Figur gewonnen! ⭐');
+  else if(m.castle) say('Sehr gut! Dein König ist jetzt sicherer! 🏰');
+  else say(['Prima Zug, Lilou! 🌟','Das war gut überlegt! 💜','Toller Zug! Weiter so! ⭐'][Math.floor(Math.random()*3)]);
+  save();renderStats();updateRoom();
+  if(endFor('black'))return;
+  turn='black';render();aiThinking=true;setTimeout(aiMove,300)
+}
 function evaluate(b){const val={p:100,n:320,b:330,r:500,q:900,k:20000};let s=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(b[r][c]){let v=val[b[r][c].toLowerCase()];s+=(color(b[r][c])==='black'?-v:v);if(r>1&&r<6)s+=(color(b[r][c])==='black'?-1:1)*3}return s}
-function minimax(b,depth,alpha,beta,maximizing,rights,last){if(depth===0)return evaluate(b);const col=maximizing?'black':'white',ms=legal(b,col,rights,last);if(!ms.length)return inCheck(b,col)?(maximizing?-999999:999999):0;let best=maximizing?-Infinity:Infinity;for(const m of ms){const p=b[m.fr][m.fc];const nr=nextRights(rights,m,p)const v=minimax(apply(b,m),depth-1,alpha,beta,!maximizing,nr,m);if(maximizing){best=Math.max(best,v);alpha=Math.max(alpha,v)}else{best=Math.min(best,v);beta=Math.min(beta,v)}if(beta<=alpha)break}return best}
+function minimax(b,depth,alpha,beta,maximizing,rights,last){if(depth===0)return evaluate(b);const col=maximizing?'black':'white',ms=legal(b,col,rights,last);if(!ms.length)return inCheck(b,col)?(maximizing?-999999:999999):0;let best=maximizing?-Infinity:Infinity;for(const m of ms){const p=b[m.fr][m.fc];const nr=nextRights(rights,m,p);const v=minimax(apply(b,m),depth-1,alpha,beta,!maximizing,nr,m);if(maximizing){best=Math.max(best,v);alpha=Math.max(alpha,v)}else{best=Math.min(best,v);beta=Math.min(beta,v)}if(beta<=alpha)break}return best}
 function aiMove(){if(over)return;const level=Math.min(4,Math.floor(state.skill/100)+1),depth=level>=4?3:level>=2?2:1,ms=legal(board,'black');if(!ms.length){aiThinking=false;endFor('black');return}
-let choices=ms.map(m=>{const nr={...stateRights()};const v=minimax(apply(board,m),Math.max(0,depth-1),-Infinity,Infinity,false,nr,m);return{m,v:v+(Math.random()*30-15)*(level===1?3:level===2?1:.2)}}).sort((a,b)=>b.v-a.v);
+let choices=ms.map(m=>{const nr=nextRights(stateRights(),m,board[m.fr][m.fc]);const v=minimax(apply(board,m),Math.max(0,depth-1),-Infinity,Infinity,false,nr,m);return{m,v:v+(Math.random()*30-15)*(level===1?3:level===2?1:.2)}}).sort((a,b)=>b.v-a.v);
 const pick=choices[Math.floor(Math.random()*Math.min(level===1?Math.min(4,choices.length):level===2?Math.min(2,choices.length):1,choices.length))].m;
 makeMove(pick);turn='white';aiThinking=false;render();endFor('white');save()}
-function endFor(col){const ms=legal(board,col);if(ms.length)return false;over=true;if(inCheck(board,col)){if(col==='black'){state.wins++;state.skill+=15;state.coins+=20;state.xp+=25;$('speech').textContent='Lilou, Schachmatt! 🏆';$('coach').textContent='Du hast gewonnen! Dein Freund lernt dazu und wird beim nächsten Mal stärker.'}else{$('speech').textContent='Fast geschafft! 🌱';$('coach').textContent='Dieses Mal hat dein Freund gewonnen. Schau, was du beim nächsten Mal anders machen kannst.'}}else{$('speech').textContent='Unentschieden! 🤝';$('coach').textContent='Eine Remis-Partie! Das war richtig konzentriert.'}state.games++;save();renderStats();return true}
+function endFor(col){const ms=legal(board,col);if(ms.length)return false;over=true;if(inCheck(board,col)){if(col==='black'){state.wins++;state.skill+=15;state.coins+=20;state.xp+=25;say('Lilou, Schachmatt! Du hast gewonnen! 🏆');$('coach').textContent='Du hast gewonnen! Dein Freund lernt dazu und wird beim nächsten Mal stärker.'}else{say('Fast geschafft! 🌱');$('coach').textContent='Dieses Mal hat dein Freund gewonnen. Schau, was du beim nächsten Mal anders machen kannst.'}}else{say('Unentschieden! 🤝');$('coach').textContent='Eine Remis-Partie! Das war richtig konzentriert.'}state.games++;save();renderStats();return true}
 function clickSquare(r,c){if(over||aiThinking||turn!=='white')return;const p=board[r][c];if(selected){const m=legal(board,'white').find(x=>x.fr===selected[0]&&x.fc===selected[1]&&x.tr===r&&x.tc===c);if(m){makeHuman(m);return}selected=null}if(p&&color(p)==='white')selected=[r,c];render()}
 function render(){const el=$('board');el.innerHTML='';const ms=selected?legal(board,'white').filter(m=>m.fr===selected[0]&&m.fc===selected[1]):[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){const s=document.createElement('div');s.className='sq '+((r+c)%2?'dark':'light');if(selected?.[0]===r&&selected?.[1]===c)s.classList.add('selected');const p=board[r][c];if(p){const sp=document.createElement('span');sp.className='piece '+color(p);sp.textContent=PIECES[p];s.appendChild(sp)}if(ms.some(m=>m.tr===r&&m.tc===c))s.classList.add(p?'capture':'legal');s.onclick=()=>clickSquare(r,c);el.appendChild(s)}$('turnText').textContent=over?'Partie beendet':turn==='white'?'Du bist dran':'Lilous Freund denkt nach…';renderMoves()}
 function renderMoves(){const e=$('moves');if(!notation.length){e.textContent='Noch keine Züge';return}e.innerHTML=notation.map((n,i)=>i%2===0?'<div class="move-row"><span class="move-no">'+(i/2+1)+'.</span><span class="move-human">'+n+'</span>': '<span class="move-ai">'+n+'</span></div>').join('')}
+function speak(text){
+  if(!$('voiceToggle')?.checked || !('speechSynthesis' in window)) return;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='de-DE';u.rate=.92;u.pitch=1.12;speechSynthesis.speak(u)}catch(e){}
+}
+function say(text){
+  if($('speech')) $('speech').textContent=text;
+  speak(text);
+}
+function updateRoom(){
+  const lvl=Math.floor(state.skill/100)+1;
+  const names=['Anfänger','Entdecker','Taktik-Fan','Schach-Profi','Meister'];
+  const name=names[Math.min(4,lvl-1)];
+  $('coinsSide')?.textContent=state.coins;
+  $('xpSide')?.textContent=state.xp;
+  $('levelRoom')?.textContent=name;
+  $('skillRoom')?.textContent='Gegner-Stufe '+Math.min(4,lvl);
+  $('difficultySide')?.textContent=name;
+  $('moodSide')?.textContent=lvl<2?'Spielt ganz entspannt mit dir':lvl<3?'Achtet schon auf deine Figuren':lvl<4?'Plant kleine Taktiken':'Denkt mehrere Züge voraus';
+  $('roomHearts')?.textContent='♥ '.repeat(state.heart).trim()+' ♡ '.repeat(3-state.heart).trim();
+}
 function renderCareCharacter(){const e=$('careCharacter');if(!e)return;e.innerHTML='<div class="char-hair"></div><div class="char-face"></div><div class="char-eye e1"></div><div class="char-eye e2"></div><div class="char-body"></div><div class="char-arm a1"></div><div class="char-arm a2"></div><div class="char-leg l1"></div><div class="char-leg l2"></div><div class="char-accessory" id="careAccessory"></div>'}
 function renderStats(){const lvl=Math.floor(state.skill/100)+1,names=['Anfänger','Entdecker','Taktik-Fan','Schach-Profi','Meister'];$('coins').textContent=state.coins;$('xp').textContent=state.xp;$('level').textContent=lvl;$('shopCoins').textContent=state.coins;$('skill').textContent=names[Math.min(4,lvl-1)];$('skillbar').style.width=Math.max(5,state.skill%100)+'%';$('difficultyText').textContent='Gegner-Stufe '+Math.min(4,lvl)+' · '+(lvl<2?'freundlich und entspannt':lvl<3?'achtet schon auf deine Figuren':lvl<4?'plant kleine Taktiken':'denkt mehrere Züge voraus');$('hearts').textContent='♥ '.repeat(state.heart).trim()+' ♡ '.repeat(3-state.heart).trim();$('friendMood').textContent=state.heart===3?'Dein Freund fühlt sich pudelwohl!':state.heart===2?'Ein kleiner Snack wäre schön.':'Zeit für Wasser und eine Pause!';setAccessory()}
 function setAccessory(){const ids=['cap','crown','bow','glasses','ball'];const found=ids.find(id=>state.owned.includes(id));for(const id of ids){$('heroAccessory')?.classList.remove(id);$('careAccessory')?.classList.remove(id)}if(found){$('heroAccessory')?.classList.add(found);$('careAccessory')?.classList.add(found)}}
@@ -56,6 +91,22 @@ function shop(){const g=$('shopGrid');g.innerHTML=items.map(i=>state.owned.inclu
 window.buy=id=>{const i=items.find(x=>x.id===id);if(!i||state.owned.includes(id))return;if(state.coins<i.price){$('speech').textContent='Noch ein paar Münzen sammeln, dann klappt es! 💜';return}state.coins-=i.price;state.owned.push(id);$('speech').textContent='Juhu! '+i.name+' ist da! 🎁';save();renderStats();shop()};
 $('feed').onclick=()=>{if(state.coins>=8){state.coins-=8;state.heart=Math.min(3,state.heart+1);$('speech').textContent='Mmmh, lecker! 🍎';save();renderStats()}};
 $('water').onclick=()=>{if(state.coins>=4){state.coins-=4;state.heart=Math.min(3,state.heart+1);$('speech').textContent='Gluck gluck! 💧';save();renderStats()}};
+$('startParty')?.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  document.querySelector('.tab[data-tab="play"]')?.classList.add('active');
+  $('play')?.classList.add('active');
+  newGame();
+  setTimeout(()=>{$('board')?.scrollIntoView({behavior:'smooth',block:'center'});say('Los geht’s, Lilou! Ich bin gespannt auf deinen ersten Zug. ♟️')},80);
+});
+$('voiceToggle')?.addEventListener('change',()=>{if(!$('voiceToggle').checked&&'speechSynthesis' in window)speechSynthesis.cancel()});
+document.querySelectorAll('.room-nav').forEach(b=>b.onclick=()=>{
+  const target=b.dataset.roomtab;
+  document.querySelectorAll('.room-nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  if(target==='learn') document.querySelector('.tab[data-tab="learn"]')?.click();
+  else if(target==='shop') document.querySelector('.tab[data-tab="shop"]')?.click();
+  else {document.querySelector('.tab[data-tab="play"]')?.click();window.scrollTo({top:0,behavior:'smooth'});}
+});
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active');if(b.dataset.tab==='shop')shop()});
-if(!state.rights)state.rights={K:true,Q:true,k:true,q:true};
+if(!state.rights)state.rights={K:true,Q:true,k:true,q:true}; if(!Array.isArray(state.owned))state.owned=['starter']; if(typeof state.heart!=='number')state.heart=3;
 renderCareCharacter();renderStats();shop();render();
