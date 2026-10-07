@@ -6,6 +6,7 @@ let state=JSON.parse(localStorage.getItem(KEY)||'null')||{coins:30,xp:0,skill:0,
 let board=clone(START),turn='white',selected=null,over=false,aiThinking=false,lastMove=null,history=[],notation=[];
 const $=id=>document.getElementById(id), clone=b=>b.map(r=>r.slice()), color=p=>p&&p===p.toUpperCase()?'white':'black';
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function setText(id,value){const e=$(id);if(e)e.textContent=value}
 function inside(r,c){return r>=0&&r<8&&c>=0&&c<8}
 function findKing(b,col){const k=col==='white'?'K':'k';for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(b[r][c]===k)return[r,c];return null}
 function pseudo(b,r,c,attackOnly=false,lm=lastMove){const p=b[r][c];if(!p)return[];const col=color(p),t=p.toLowerCase(),out=[];const add=(rr,cc)=>{if(!inside(rr,cc))return false;const x=b[rr][cc];if(!x){out.push([rr,cc]);return true}if(color(x)!==col)out.push([rr,cc]);return false};
@@ -72,17 +73,17 @@ function updateRoom(){
   const lvl=Math.floor(state.skill/100)+1;
   const names=['Anfänger','Entdecker','Taktik-Fan','Schach-Profi','Meister'];
   const name=names[Math.min(4,lvl-1)];
-  $('coinsSide')?.textContent=state.coins;
-  $('xpSide')?.textContent=state.xp;
-  $('levelRoom')?.textContent=name;
-  $('skillRoom')?.textContent='Gegner-Stufe '+Math.min(4,lvl);
-  $('difficultySide')?.textContent=name;
-  $('moodSide')?.textContent=lvl<2?'Spielt ganz entspannt mit dir':lvl<3?'Achtet schon auf deine Figuren':lvl<4?'Plant kleine Taktiken':'Denkt mehrere Züge voraus';
-  $('roomHearts')?.textContent='♥ '.repeat(state.heart).trim()+' ♡ '.repeat(3-state.heart).trim();
+  setText('coinsSide',state.coins);
+  setText('xpSide',state.xp);
+  setText('levelRoom',name);
+  setText('skillRoom','Gegner-Stufe '+Math.min(4,lvl));
+  setText('difficultySide',name);
+  setText('moodSide',lvl<2?'Spielt ganz entspannt mit dir':lvl<3?'Achtet schon auf deine Figuren':lvl<4?'Plant kleine Taktiken':'Denkt mehrere Züge voraus');
+  setText('roomHearts','♥ '.repeat(state.heart).trim()+' ♡ '.repeat(3-state.heart).trim());
 }
 function renderCareCharacter(){const e=$('careCharacter');if(!e)return;e.innerHTML='<div class="char-hair"></div><div class="char-face"></div><div class="char-eye e1"></div><div class="char-eye e2"></div><div class="char-body"></div><div class="char-arm a1"></div><div class="char-arm a2"></div><div class="char-leg l1"></div><div class="char-leg l2"></div><div class="char-accessory" id="careAccessory"></div>'}
 function renderStats(){const lvl=Math.floor(state.skill/100)+1,names=['Anfänger','Entdecker','Taktik-Fan','Schach-Profi','Meister'];$('coins').textContent=state.coins;$('xp').textContent=state.xp;$('level').textContent=lvl;$('shopCoins').textContent=state.coins;$('skill').textContent=names[Math.min(4,lvl-1)];$('skillbar').style.width=Math.max(5,state.skill%100)+'%';$('difficultyText').textContent='Gegner-Stufe '+Math.min(4,lvl)+' · '+(lvl<2?'freundlich und entspannt':lvl<3?'achtet schon auf deine Figuren':lvl<4?'plant kleine Taktiken':'denkt mehrere Züge voraus');$('hearts').textContent='♥ '.repeat(state.heart).trim()+' ♡ '.repeat(3-state.heart).trim();$('friendMood').textContent=state.heart===3?'Dein Freund fühlt sich pudelwohl!':state.heart===2?'Ein kleiner Snack wäre schön.':'Zeit für Wasser und eine Pause!';setAccessory()}
-function setAccessory(){const ids=['cap','crown','bow','glasses','ball'];const found=ids.find(id=>state.owned.includes(id));for(const id of ids){$('heroAccessory')?.classList.remove(id);$('careAccessory')?.classList.remove(id)}if(found){$('heroAccessory')?.classList.add(found);$('careAccessory')?.classList.add(found)}}
+function setAccessory(){const ids=['cap','crown','bow','glasses','ball'];const found=ids.find(id=>state.owned.includes(id));for(const id of ids){if($('heroAccessory')) $('heroAccessory').classList.remove(id);$('careAccessory')?.classList.remove(id)}if(found){if($('heroAccessory')) $('heroAccessory').classList.add(found);$('careAccessory')?.classList.add(found)}}
 function newGame(){board=clone(START);turn='white';selected=null;over=false;aiThinking=false;lastMove=null;notation=[];history=[];state.rights={K:true,Q:true,k:true,q:true};$('speech').textContent='Hallo Lilou! ♡ Lust auf eine Partie?';$('coach').textContent='Erst schauen, dann ziehen. Welche Figur möchtest du bewegen?';save();render()}
 $('newGame').onclick=newGame;
 $('undo').onclick=()=>{if(aiThinking||!history.length)return;const h=history.length>=2?history[history.length-2]:history[0];board=clone(h.board);turn='white';state.rights={...h.rights};lastMove=h.lastMove;notation=h.notation.slice();const st=h.state;Object.assign(state,st);history=history.slice(0,Math.max(0,history.length-2));over=false;save();renderStats();render();$('coach').textContent='Zug zurück! Überlege in Ruhe noch einmal.'};
@@ -95,7 +96,7 @@ $('startParty')?.addEventListener('click',()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
   document.querySelector('.tab[data-tab="play"]')?.classList.add('active');
-  $('play')?.classList.add('active');
+  if($('play')) $('play').classList.add('active');
   newGame();
   setTimeout(()=>{$('board')?.scrollIntoView({behavior:'smooth',block:'center'});say('Los geht’s, Lilou! Ich bin gespannt auf deinen ersten Zug. ♟️')},80);
 });
