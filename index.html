@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#7c5cff">
+  <title>Schach mit Lilou ♟</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand"><div class="logo">♞</div><div><b>Schach mit Lilou</b><small>Dein persönliches Schach-Abenteuer</small></div></div>
+      <div class="stats"><span>🪙 <b id="coins">0</b></span><span>⭐ <b id="xp">0</b> XP</span><span>🏆 <b id="level">1</b></span></div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">LILOUS SCHACHWELT</p>
+          <h1>Spielen. Lernen. <span>Besser werden.</span></h1>
+          <p>Spiele gegen deinen kleinen Pixel-Freund und schalte mit deinen Münzen neue Sachen frei.</p>
+        </div>
+        <div class="character-card">
+          <div class="speech" id="speech">Hallo Lilou! ♡ Lust auf eine Partie?</div>
+          <div class="pixel-character" id="character">
+            <div class="char-hair"></div><div class="char-face"></div><div class="char-eye e1"></div><div class="char-eye e2"></div>
+            <div class="char-body"></div><div class="char-arm a1"></div><div class="char-arm a2"></div>
+            <div class="char-leg l1"></div><div class="char-leg l2"></div><div class="char-accessory"></div>
+          </div>
+          <div class="char-name">Lilous kleiner Schachfreund</div>
+        </div>
+      </section>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="play">♟ Spielen</button>
+        <button class="tab" data-tab="learn">💡 Lernen</button>
+        <button class="tab" data-tab="shop">🎒 Shop</button>
+        <button class="tab" data-tab="care">🍎 Freund</button>
+      </div>
+
+      <section id="play" class="panel active">
+        <div class="game-layout">
+          <div class="board-wrap">
+            <div class="board-head"><b>Partie gegen Lilous Freund</b><span id="turnText">Du bist dran</span></div>
+            <div id="board" class="board" aria-label="Schachbrett"></div>
+            <div class="game-actions">
+              <button id="newGame" class="primary">Neue Partie</button>
+              <button id="undo" class="secondary">↩ Zug zurück</button>
+            </div>
+          </div>
+          <aside class="side">
+            <div class="card">
+              <h3>🎯 Dein Training</h3>
+              <div class="progress-row"><span>Schach-Level</span><b id="skill">Anfänger</b></div>
+              <div class="progress"><i id="skillbar"></i></div>
+              <p class="muted" id="difficultyText">Lilou spielt ganz entspannt mit.</p>
+            </div>
+            <div class="card">
+              <h3>✨ Dieser Zug</h3>
+              <div id="coach" class="coach">Ziehe eine Figur. Wenn du Hilfe brauchst, findest du Tipps unter „Lernen“.</div>
+            </div>
+            <div class="card">
+              <h3>🪙 Belohnungen</h3>
+              <div class="reward-list"><span>Partie spielen <b>+5</b></span><span>Gewinnen <b>+20</b></span><span>Guter Zug <b>+3</b></span><span>Schach geben <b>+5</b></span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="learn" class="panel">
+        <div class="section-title"><div><p class="eyebrow">KLEINE SCHRITTE</p><h2>Schach lernen</h2></div><span class="badge">Für Lilou 💜</span></div>
+        <div class="lesson-grid">
+          <article class="lesson"><div class="lesson-icon">♙</div><h3>Die Bauern</h3><p>Ein Bauer zieht normalerweise ein Feld nach vorne. Beim ersten Zug darf er auch zwei Felder gehen.</p><div class="mini-tip">Tipp: Bauern greifen schräg nach vorne an.</div></article>
+          <article class="lesson"><div class="lesson-icon">♘</div><h3>Das Pferd</h3><p>Das Pferd zieht in einem L: zwei Felder in eine Richtung und dann eins zur Seite.</p><div class="mini-tip">Tipp: Es darf über andere Figuren springen.</div></article>
+          <article class="lesson"><div class="lesson-icon">♔</div><h3>Der König</h3><p>Der König darf ein Feld in jede Richtung ziehen. Er darf aber niemals auf einem angegriffenen Feld stehen.</p><div class="mini-tip">Tipp: Der König ist die wichtigste Figur.</div></article>
+          <article class="lesson"><div class="lesson-icon">👑</div><h3>Die Dame</h3><p>Die Dame darf beliebig weit gerade oder diagonal ziehen, solange ihr Weg frei ist.</p><div class="mini-tip">Tipp: Bewahre deine Dame gut auf.</div></article>
+          <article class="lesson"><div class="lesson-icon">💫</div><h3>Schach!</h3><p>Wenn dein König angegriffen wird, musst du reagieren. Du kannst den König bewegen, die Angriffsfigur schlagen oder den Angriff blockieren.</p><div class="mini-tip">Du schaffst das! Erst schauen, dann ziehen.</div></article>
+          <article class="lesson"><div class="lesson-icon">🏰</div><h3>Rochade</h3><p>Bei der Rochade ziehen König und Turm gleichzeitig. Sie ist möglich, wenn die nötigen Felder frei und sicher sind.</p><div class="mini-tip">Eine tolle Möglichkeit, den König zu schützen.</div></article>
+        </div>
+      </section>
+
+      <section id="shop" class="panel">
+        <div class="section-title"><div><p class="eyebrow">LILOUS KLEINER LADEN</p><h2>Shop</h2></div><span class="coin-pill">🪙 <b id="shopCoins">0</b></span></div>
+        <div id="shopGrid" class="shop-grid"></div>
+      </section>
+
+      <section id="care" class="panel">
+        <div class="section-title"><div><p class="eyebrow">DEIN PIXEL-FREUND</p><h2>Um Lilou kümmern</h2></div></div>
+        <div class="care-layout">
+          <div class="big-character card"><div class="pixel-character large" id="careCharacter"></div><h3 id="friendMood">Lilous Freund freut sich!</h3><p class="muted">Spiele Schach, füttere ihn und sammle kleine Überraschungen.</p></div>
+          <div class="card needs"><h3>🍎 Füttern</h3><p>Gib deinem Freund einen Snack. Das kostet ein paar Münzen.</p><button class="primary" id="feed">🍎 Apfel geben · 8 🪙</button><button class="secondary" id="water">💧 Wasser geben · 4 🪙</button><div class="hearts" id="hearts">♥ ♥ ♥</div></div>
+        </div>
+      </section>
+    </main>
+    <footer>Schach mit Lilou · Ein kinderfreundliches, lokales Lernspiel · 💜</footer>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
