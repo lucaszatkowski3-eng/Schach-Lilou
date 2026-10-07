@@ -15,21 +15,41 @@
     </header>
 
     <main>
-      <section class="hero">
-        <div>
-          <p class="eyebrow">LILOUS SCHACHWELT</p>
-          <h1>Spielen. Lernen. <span>Besser werden.</span></h1>
-          <p>Spiele gegen deinen kleinen Pixel-Freund und schalte mit deinen Münzen neue Sachen frei.</p>
-        </div>
-        <div class="character-card">
-          <div class="speech" id="speech">Hallo Lilou! ♡ Lust auf eine Partie?</div>
-          <div class="pixel-character" id="character">
-            <div class="char-hair"></div><div class="char-face"></div><div class="char-eye e1"></div><div class="char-eye e2"></div>
-            <div class="char-body"></div><div class="char-arm a1"></div><div class="char-arm a2"></div>
-            <div class="char-leg l1"></div><div class="char-leg l2"></div><div class="char-accessory" id="heroAccessory"></div>
+      <section class="room-shell">
+        <aside class="room-sidebar left-sidebar">
+          <div class="side-title">💜 Lilous Raum</div>
+          <button class="room-nav active" data-roomtab="room">🏠 Raum</button>
+          <button class="room-nav" data-roomtab="learn">💡 Lernen</button>
+          <button class="room-nav" data-roomtab="shop">🎒 Sachen</button>
+          <div class="side-stat">🪙 <b id="coinsSide">30</b> Münzen</div>
+          <div class="side-stat">⭐ <b id="xpSide">0</b> XP</div>
+        </aside>
+        <div class="room-main">
+          <div class="room-heading">
+            <div><p class="eyebrow">LILOUS KLEINE SCHACHWELT</p><h1>Mein Schachzimmer</h1></div>
+            <div class="room-level"><b id="levelRoom">Anfänger</b><span id="skillRoom">Gegner-Stufe 1</span></div>
           </div>
-          <div class="char-name">Lilous kleiner Schachfreund</div>
+          <div class="room-scene">
+            <div class="window"><div class="cloud c1"></div><div class="cloud c2"></div></div>
+            <div class="shelf"><span>♟</span><span>🏆</span><span>📚</span></div>
+            <div class="rug"></div>
+            <div class="speech room-speech" id="speech">Hallo Lilou! ♡ Lust auf eine Partie?</div>
+            <div class="pixel-character room-character" id="character">
+              <div class="char-hair"></div><div class="char-face"></div><div class="char-eye e1"></div><div class="char-eye e2"></div>
+              <div class="char-body"></div><div class="char-arm a1"></div><div class="char-arm a2"></div>
+              <div class="char-leg l1"></div><div class="char-leg l2"></div><div class="char-accessory" id="heroAccessory"></div>
+            </div>
+            <div class="heart-row" id="roomHearts">♥ ♥ ♥</div>
+            <div class="room-name">Lilous kleiner Schachfreund</div>
+          </div>
         </div>
+        <aside class="room-sidebar right-sidebar">
+          <div class="hello">Hallo Lilou! 👋</div>
+          <p class="muted">Bereit für eine kleine Partie?</p>
+          <button id="startParty" class="start-party">♟ PARTIE<br>STARTEN</button>
+          <div class="opponent-card"><span>Dein Gegner</span><b id="difficultySide">Anfänger</b><small id="moodSide">Spielt freundlich mit dir</small></div>
+          <label class="voice-control"><input id="voiceToggle" type="checkbox" checked> 🔊 Vorlesen</label>
+        </aside>
       </section>
 
       <div class="tabs">
@@ -65,7 +85,7 @@
             </div>
             <div class="card">
               <h3>🪙 Belohnungen</h3>
-              <div class="reward-list"><span>Partie spielen <b>+1</b></span><span>Gewinnen <b>+20</b></span><span>Guter Zug <b>+3</b></span><span>Schach geben <b>+5</b></span></div>
+              <div class="reward-list"><span>Partie spielen <b>+1</b></span><span>Gewinnen <b>+20</b></span><span>Figur nehmen <b>+3</b></span><span>Schach geben <b>+5</b></span></div>
             </div>
           </aside>
         </div>
